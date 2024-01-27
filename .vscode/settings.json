@@ -35,7 +35,6 @@
     "[json]": {
         "editor.formatOnSave": false
     },
-    "clangd.arguments": ["--header-insertion=never"],
     "json.schemas": [
         {
             "fileMatch": ["qmk.json"],
@@ -53,5 +52,10 @@
             "fileMatch": ["keymap.json"],
             "url": "./data/schemas/keymap.jsonschema"
         }
-    ]
+    ],
+    "[c]": {
+        "editor.formatOnSave": false
+    },
+    "clangd.arguments": ["--header-insertion=never"],
+    "cmake.configureOnOpen": false
 }
