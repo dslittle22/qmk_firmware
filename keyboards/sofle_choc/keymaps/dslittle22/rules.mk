@@ -3,6 +3,7 @@ ENCODER_ENABLE = yes
 
 BOOTLOADER = atmel-dfu
 RGB_MATRIX_ENABLE = yes
+CAPS_WORD_ENABLE = yes
 
 # space saving
 LTO_ENABLE = yes
