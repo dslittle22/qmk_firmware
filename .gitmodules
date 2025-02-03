@@ -2,6 +2,7 @@
 	path = lib/chibios
 	url = https://github.com/qmk/ChibiOS
 	branch = master
+    ignore = untracked
 [submodule "lib/chibios-contrib"]
 	path = lib/chibios-contrib
 	url = https://github.com/qmk/ChibiOS-Contrib
