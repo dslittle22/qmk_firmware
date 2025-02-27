@@ -5,6 +5,18 @@
 
 #include QMK_KEYBOARD_H
 
+enum custom_keycodes {
+    QUOTES = SAFE_RANGE,
+    SQUOTES,
+    BACKTICKS,
+    ADDED,
+    ASSIGNMENT,
+    SUBTRACTED,
+    MULTIPIED,
+    SEL_LINE,
+    SEL_WORD,
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
       MEH_T(KC_TAB),  KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           ALL_T(KC_BSLS),
@@ -22,7 +34,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [2] = LAYOUT(
       KC_HASH,        KC_AT,          KC_AMPR,        KC_PIPE,        KC_UNDS,        KC_QUES,                                        KC_TRANSPARENT, KC_LCBR,        KC_RCBR,        KC_GRAVE,       KC_TRANSPARENT, KC_TRANSPARENT,
-      KC_CIRC,        KC_EXLM,        KC_GRAVE,       KC_QUOTE,       KC_DQUO,        KC_DLR,                                         KC_TRANSPARENT, KC_LPRN,        KC_RPRN,        KC_QUOTE,       OSL(5),         KC_TRANSPARENT,
+      KC_CIRC,        KC_EXLM,        KC_GRAVE,       KC_QUOTE,       KC_DQUO,        KC_DLR,                                         KC_TRANSPARENT, KC_LPRN,        KC_RPRN,        KC_QUOTE,       OSL(6),         KC_TRANSPARENT,
       KC_HASH,        KC_LABK,        KC_MINUS,       KC_EQUAL,       KC_RABK,        KC_QUES,                                        KC_TRANSPARENT, KC_LBRC,        KC_RBRC,        KC_DQUO,        KC_TRANSPARENT, KC_TRANSPARENT,
       KC_TILD,        KC_SLASH,       KC_ASTR,        KC_PLUS,        KC_PERC,        KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
                                                       KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
@@ -48,4 +60,66 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
                                                       KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
     ),
+    [6] = LAYOUT(
+      KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+      KC_TRANSPARENT, SEL_WORD,       BACKTICKS,      SQUOTES,        QUOTES,         KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+      KC_TRANSPARENT, SEL_LINE,       SUBTRACTED,     ASSIGNMENT,     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+      KC_TRANSPARENT, KC_TRANSPARENT, MULTIPIED,      ADDED,          KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+                                                      KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
+    )
   };
+
+
+bool process_user_record(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        // macros
+        case QUOTES:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_TAP(X_LEFT));
+        }
+        break;
+        case SQUOTES:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_LEFT));
+        }
+        break;
+        case BACKTICKS:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_LEFT));
+        }
+        break;
+        case ADDED:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_EQUAL) SS_DELAY(10) SS_TAP(X_SPACE));
+        }
+        break;
+        case ASSIGNMENT:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_LSFT(SS_TAP(X_EQUAL)) SS_DELAY(10) SS_TAP(X_SPACE));
+        }
+        break;
+        case SUBTRACTED:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_MINUS) SS_DELAY(10) SS_TAP(X_SPACE));
+        }
+        break;
+        case MULTIPIED:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_LSFT(SS_TAP(X_KP_ASTERISK)) SS_DELAY(10) SS_TAP(X_SPACE));
+        }
+        break;
+        case SEL_LINE:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LGUI(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LGUI(SS_LSFT(SS_TAP(X_RIGHT))));
+        }
+        break;
+        case SEL_WORD:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LALT(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LALT(SS_LSFT(SS_TAP(X_RIGHT))));
+        }
+        break;
+    }
+
+    return true;
+}
+
