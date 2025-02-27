@@ -4,6 +4,7 @@
 
 
 #include QMK_KEYBOARD_H
+#include "process_tap_dance.h"
 
 enum custom_keycodes {
     QUOTES = SAFE_RANGE,
@@ -17,13 +18,28 @@ enum custom_keycodes {
     SEL_WORD,
 };
 
+
+typedef struct {
+    uint16_t tap;
+    uint16_t hold;
+    uint16_t held;
+} tap_dance_tap_hold_t;
+tap_dance_action_t *action;
+
+enum tap_dance_codes {
+    OPT_CMD_BSPC,
+    ALFRED_SPOTLIGHT,
+    EXP_COLEMAK,
+    EXP_QWERTY,
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
       MEH_T(KC_TAB),  KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           ALL_T(KC_BSLS),
       LT(6,KC_ESCAPE),MT(MOD_LCTL, KC_A),MT(MOD_LALT, KC_S),MT(MOD_LGUI, KC_D),MT(MOD_LSFT, KC_F),KC_G,                                           KC_H,           MT(MOD_RSFT, KC_J),MT(MOD_RGUI, KC_K),MT(MOD_RALT, KC_L),MT(MOD_RCTL, KC_SCLN),KC_QUOTE,
       CW_TOGG,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       OSM(MOD_LSFT),
-      LGUI(KC_SPACE),    KC_HOME,        KC_PAGE_UP,     KC_PGDN,        KC_END,         LT(2,KC_BSPC),                                  LT(2,KC_SPACE), KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       LALT(KC_6),
-                                                      LALT(KC_BSPC),    LT(3,KC_TAB),                                   LT(4,KC_GRAVE), LT(3,KC_ENTER)
+      TD(ALFRED_SPOTLIGHT),    KC_HOME,        KC_PAGE_UP,     KC_PGDN,        KC_END,         LT(2,KC_BSPC),                                  LT(2,KC_SPACE), KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       TD(EXP_COLEMAK),
+                                                      TD(OPT_CMD_BSPC),    LT(3,KC_TAB),                                   LT(4,KC_GRAVE), LT(3,KC_ENTER)
     ),
     [1] = LAYOUT(
       LT(7,KC_TAB),   KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                           KC_J,           KC_L,           KC_U,           KC_Y,           KC_SCLN,        KC_TRANSPARENT,
@@ -70,56 +86,102 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   };
 
 
-bool process_user_record(uint16_t keycode, keyrecord_t *record) {
+void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    if (state->pressed) {
+        if (state->count == 1
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            register_code16(tap_hold->hold);
+            tap_hold->held = tap_hold->hold;
+        } else {
+            register_code16(tap_hold->tap);
+            tap_hold->held = tap_hold->tap;
+        }
+    }
+}
+
+void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    if (tap_hold->held) {
+        unregister_code16(tap_hold->held);
+        tap_hold->held = 0;
+    }
+}
+
+#define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+tap_dance_action_t tap_dance_actions[] = {
+    [OPT_CMD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(LALT(KC_BSPC), LGUI(KC_BSPC)),
+    [ALFRED_SPOTLIGHT] = ACTION_TAP_DANCE_TAP_HOLD(LGUI(KC_SPACE), LALT(KC_SPACE)),
+    [EXP_COLEMAK] = ACTION_TAP_DANCE_LAYER_TOGGLE(LALT(KC_6), 1),
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         // macros
-        case QUOTES:
+    case QUOTES:
         if (record->event.pressed) {
             SEND_STRING(SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_TAP(X_LEFT));
         }
         break;
-        case SQUOTES:
+    case SQUOTES:
         if (record->event.pressed) {
             SEND_STRING(SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_LEFT));
         }
         break;
-        case BACKTICKS:
+    case BACKTICKS:
         if (record->event.pressed) {
             SEND_STRING(SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_LEFT));
         }
         break;
-        case ADDED:
+    case ADDED:
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_KP_PLUS) SS_DELAY(10) SS_TAP(X_SPACE));
+        }
+        break;
+    case ASSIGNMENT:
         if (record->event.pressed) {
             SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_EQUAL) SS_DELAY(10) SS_TAP(X_SPACE));
         }
         break;
-        case ASSIGNMENT:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_LSFT(SS_TAP(X_EQUAL)) SS_DELAY(10) SS_TAP(X_SPACE));
-        }
-        break;
-        case SUBTRACTED:
+    case SUBTRACTED:
         if (record->event.pressed) {
             SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_MINUS) SS_DELAY(10) SS_TAP(X_SPACE));
         }
         break;
-        case MULTIPIED:
+    case MULTIPIED:
         if (record->event.pressed) {
             SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_LSFT(SS_TAP(X_KP_ASTERISK)) SS_DELAY(10) SS_TAP(X_SPACE));
         }
         break;
-        case SEL_LINE:
+    case SEL_LINE:
         if (record->event.pressed) {
             SEND_STRING(SS_LGUI(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LGUI(SS_LSFT(SS_TAP(X_RIGHT))));
         }
         break;
-        case SEL_WORD:
+    case SEL_WORD:
         if (record->event.pressed) {
             SEND_STRING(SS_LALT(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LALT(SS_LSFT(SS_TAP(X_RIGHT))));
         }
         break;
+
+        // tap dance
+        // list all tap dance keycodes with tap-hold configurations
+        case TD(ALFRED_SPOTLIGHT):
+        case TD(OPT_CMD_BSPC):
+        action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
+        if (!record->event.pressed && action->state.count && !action->state.finished) {
+            tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+            tap_code16(tap_hold->tap);
+        }
+        break;
+
     }
-
     return true;
-}
-
+};
