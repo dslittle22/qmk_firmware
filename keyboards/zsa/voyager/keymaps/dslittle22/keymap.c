@@ -2,7 +2,6 @@
 // Copyright 2023 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-
 #include QMK_KEYBOARD_H
 #include "process_tap_dance.h"
 
@@ -18,6 +17,21 @@ enum custom_keycodes {
     SEL_WORD,
 };
 
+typedef enum {
+    TD_NONE,
+    TD_UNKNOWN,
+    TD_SINGLE_TAP,
+    TD_SINGLE_HOLD,
+    TD_DOUBLE_TAP,
+    TD_DOUBLE_HOLD,
+} td_state_t;
+
+
+typedef struct {
+    bool is_press_action;
+    td_state_t state;
+} td_tap_t;
+
 
 typedef struct {
     uint16_t tap;
@@ -30,14 +44,20 @@ enum tap_dance_codes {
     OPT_CMD_BSPC,
     ALFRED_SPOTLIGHT,
     EXP_COLEMAK,
-    EXP_QWERTY,
+    CAPS_LOCK_WORD
 };
+
+td_state_t cur_dance(tap_dance_state_t *state);
+
+// For the x tap dance. Put it here so it can be used in any keymap
+void clw_finished(tap_dance_state_t *state, void *user_data);
+void clw_reset(tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
       MEH_T(KC_TAB),  KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           ALL_T(KC_BSLS),
       LT(6,KC_ESCAPE),MT(MOD_LCTL, KC_A),MT(MOD_LALT, KC_S),MT(MOD_LGUI, KC_D),MT(MOD_LSFT, KC_F),KC_G,                                           KC_H,           MT(MOD_RSFT, KC_J),MT(MOD_RGUI, KC_K),MT(MOD_RALT, KC_L),MT(MOD_RCTL, KC_SCLN),KC_QUOTE,
-      CW_TOGG,        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       OSM(MOD_LSFT),
+      TD(CAPS_LOCK_WORD),        KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       OSM(MOD_LSFT),
       TD(ALFRED_SPOTLIGHT),    KC_HOME,        KC_PAGE_UP,     KC_PGDN,        KC_END,         LT(2,KC_BSPC),                                  LT(2,KC_SPACE), KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       TD(EXP_COLEMAK),
                                                       TD(OPT_CMD_BSPC),    LT(3,KC_TAB),                                   LT(4,KC_GRAVE), LT(3,KC_ENTER)
     ),
@@ -86,6 +106,61 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   };
 
 
+/* Return an integer that corresponds to what kind of tap dance should be executed.
+ *
+ * How to figure out tap dance state: interrupted and pressed.
+ *
+ * Interrupted: If the state of a dance is "interrupted", that means that another key has been hit
+ *  under the tapping term. This is typically indicative that you are trying to "tap" the key.
+ *
+ * Pressed: Whether or not the key is still being pressed. If this value is true, that means the tapping term
+ *  has ended, but the key is still being pressed down. This generally means the key is being "held".
+ *
+ * One thing that is currently not possible with qmk software in regards to tap dance is to mimic the "permissive hold"
+ *  feature. In general, advanced tap dances do not work well if they are used with commonly typed letters.
+ *  For example "A". Tap dances are best used on non-letter keys that are not hit while typing letters.
+ */
+ td_state_t cur_dance(tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        // Key has not been interrupted, but the key is still held. Means you want to send a 'HOLD'.
+        else return TD_SINGLE_HOLD;
+    } else if (state->count == 2) {
+        if (state->interrupted || state->pressed) return TD_DOUBLE_HOLD;
+        else return TD_DOUBLE_TAP;
+    } else return TD_UNKNOWN;
+}
+
+static td_tap_t cwl_tap_state = {
+    .is_press_action = true,
+    .state = TD_NONE
+};
+
+void cwl_finished(tap_dance_state_t *state, void *user_data) {
+    cwl_tap_state.state = cur_dance(state);
+    switch (cwl_tap_state.state) {
+        case TD_SINGLE_TAP: caps_word_toggle(); register_code(KC_LSFT); break;
+        case TD_SINGLE_HOLD: register_code(KC_LSFT); break;
+
+        case TD_DOUBLE_TAP:
+        case TD_DOUBLE_HOLD: register_code(KC_CAPS); break;
+        default: break;
+    }
+}
+
+void cwl_reset(tap_dance_state_t *state, void *user_data) {
+    switch (cwl_tap_state.state) {
+        case TD_SINGLE_TAP:
+        case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
+        // this unregistering is making caps lock not work,
+        // and there seems to be no issue just keeping it registered
+        // case TD_DOUBLE_TAP: unregister_code(KC_CAPS); break;
+        case TD_DOUBLE_HOLD: unregister_code(KC_CAPS); break;
+        default: break;
+    }
+    cwl_tap_state.state = TD_NONE;
+}
+
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -120,6 +195,7 @@ tap_dance_action_t tap_dance_actions[] = {
     [OPT_CMD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(LALT(KC_BSPC), LGUI(KC_BSPC)),
     [ALFRED_SPOTLIGHT] = ACTION_TAP_DANCE_TAP_HOLD(LGUI(KC_SPACE), LALT(KC_SPACE)),
     [EXP_COLEMAK] = ACTION_TAP_DANCE_LAYER_TOGGLE(LALT(KC_6), 1),
+    [CAPS_LOCK_WORD] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, cwl_finished, cwl_reset)
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
