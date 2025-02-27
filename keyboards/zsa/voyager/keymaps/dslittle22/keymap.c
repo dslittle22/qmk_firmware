@@ -139,7 +139,7 @@ static td_tap_t cwl_tap_state = {
 void cwl_finished(tap_dance_state_t *state, void *user_data) {
     cwl_tap_state.state = cur_dance(state);
     switch (cwl_tap_state.state) {
-        case TD_SINGLE_TAP: caps_word_toggle(); register_code(KC_LSFT); break;
+        case TD_SINGLE_TAP: register_code(KC_LSFT); break;
         case TD_SINGLE_HOLD: register_code(KC_LSFT); break;
 
         case TD_DOUBLE_TAP:
@@ -150,7 +150,7 @@ void cwl_finished(tap_dance_state_t *state, void *user_data) {
 
 void cwl_reset(tap_dance_state_t *state, void *user_data) {
     switch (cwl_tap_state.state) {
-        case TD_SINGLE_TAP:
+        case TD_SINGLE_TAP: caps_word_toggle(); unregister_code(KC_LSFT); break;
         case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
         // this unregistering is making caps lock not work,
         // and there seems to be no issue just keeping it registered
