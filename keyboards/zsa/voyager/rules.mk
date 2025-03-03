@@ -10,3 +10,4 @@ SRC += matrix.c mcp23018.c
 I2C_DRIVER_REQUIRED = yes
 
 TAP_DANCE_ENABLE = yes
+COMBO_ENABLE = yes
