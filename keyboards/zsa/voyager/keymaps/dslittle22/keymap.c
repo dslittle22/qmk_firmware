@@ -302,6 +302,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 };
 
 
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LCTL_A:
+        case LALT_S:
+        case LGUI_D:
+        case LSFT_F:
+        case RSFT_J:
+        case RGUI_K:
+        case RALT_L:
+        case RCTL_SCLN:
+            return 130;
+            break;
+
+        default:
+            return TAPPING_TERM;
+    }
+}
+
+
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT(
         'L', 'L', 'L', 'L', 'L', 'L',           'R', 'R', 'R', 'R', 'R', 'R',
