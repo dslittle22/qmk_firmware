@@ -185,6 +185,11 @@ void cwl_reset(tap_dance_state_t *state, void *user_data) {
 
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+    dprint("tap_dance_tap_hold_finished\n");
+    dprintf("state->count: %d\n", state->count);
+    dprintf("state->pressed: %d\n", state->pressed);
+    dprintf("state->interrupted: %d\n", state->interrupted);
+    dprintf("\n");
 
     if (state->pressed) {
         if (state->count == 1
@@ -203,6 +208,12 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    dprint("tap_dance_tap_hold_reset\n");
+    dprintf("state->count: %d\n", state->count);
+    dprintf("state->pressed: %d\n", state->pressed);
+    dprintf("state->interrupted: %d\n", state->interrupted);
+    dprintf("\n");
 
     if (tap_hold->held) {
         unregister_code16(tap_hold->held);
