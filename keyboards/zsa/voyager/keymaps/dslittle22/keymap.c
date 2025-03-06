@@ -5,6 +5,7 @@
 #include QMK_KEYBOARD_H
 #include "process_tap_dance.h"
 #include "process_combo.h"
+// #include "process_key_override.h"
 
 #define LCTL_A MT(MOD_LCTL, KC_A)
 #define LALT_S MT(MOD_LALT, KC_S)
@@ -14,6 +15,24 @@
 #define RGUI_K MT(MOD_RGUI, KC_K)
 #define RALT_L MT(MOD_RALT, KC_L)
 #define RCTL_SCLN MT(MOD_RCTL, KC_SCLN)
+
+
+
+// const key_override_t semi_to_colon_override = {
+//     .trigger_mods          = 0, // no mods need to be held to activate
+//     .trigger               = RCTL_SCLN,
+//     .replacement           = MT(MOD_RCTL, KC_COLON),
+//     .layers                = ~0,      // active on all layers
+//     //.negative_mod_mask     = MOD_MASK_CSAG, // Only trigger if no mods are active
+//     .suppressed_mods       = 0, // no mods should be held down, so we don't need to suppress any
+//     .options               = ko_options_default
+// };
+
+
+// const key_override_t *key_overrides[] = {
+// 	&semi_to_colon_override,
+// };
+
 
 enum custom_keycodes {
     CMD_BSPC,
