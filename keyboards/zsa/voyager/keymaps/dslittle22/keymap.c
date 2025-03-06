@@ -16,24 +16,6 @@
 #define RALT_L MT(MOD_RALT, KC_L)
 #define RCTL_SCLN MT(MOD_RCTL, KC_SCLN)
 
-
-
-// const key_override_t semi_to_colon_override = {
-//     .trigger_mods          = 0, // no mods need to be held to activate
-//     .trigger               = RCTL_SCLN,
-//     .replacement           = MT(MOD_RCTL, KC_COLON),
-//     .layers                = ~0,      // active on all layers
-//     //.negative_mod_mask     = MOD_MASK_CSAG, // Only trigger if no mods are active
-//     .suppressed_mods       = 0, // no mods should be held down, so we don't need to suppress any
-//     .options               = ko_options_default
-// };
-
-
-// const key_override_t *key_overrides[] = {
-// 	&semi_to_colon_override,
-// };
-
-
 enum custom_keycodes {
     CMD_BSPC,
     OPT_BSPC,
@@ -239,84 +221,104 @@ tap_dance_action_t tap_dance_actions[] = {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    dprintf("keycode: %d\n", keycode);
+    dprintf("count: %d\n", record->tap.count);
+    dprintf("interrupted: %d\n", record->tap.interrupted);
+    dprintf("event.pressed: %d\n", record->event.pressed);
+    dprintf("\n");
 
     switch (keycode) {
         // macros
-    case QUOTES:
-        if (record->event.pressed) {
-            SEND_STRING(SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_TAP(X_LEFT));
-        }
-        break;
-    case SQUOTES:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_LEFT));
-        }
-        break;
-    case BACKTICKS:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_LEFT));
-        }
-        break;
-    case ADDED:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_KP_PLUS) SS_DELAY(10) SS_TAP(X_SPACE));
-        }
-        break;
-    case ASSIGNMENT:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_EQUAL) SS_DELAY(10) SS_TAP(X_SPACE));
-        }
-        break;
-    case SUBTRACTED:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_MINUS) SS_DELAY(10) SS_TAP(X_SPACE));
-        }
-        break;
-    case MULTIPIED:
-        if (record->event.pressed) {
-            SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_LSFT(SS_TAP(X_KP_ASTERISK)) SS_DELAY(10) SS_TAP(X_SPACE));
-        }
-        break;
-    case SEL_LINE:
-        if (record->event.pressed) {
-            SEND_STRING(SS_LGUI(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LGUI(SS_LSFT(SS_TAP(X_RIGHT))));
-        }
-        break;
-    case SEL_WORD:
-        if (record->event.pressed) {
-            SEND_STRING(SS_LALT(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LALT(SS_LSFT(SS_TAP(X_RIGHT))));
-        }
-        break;
+        case QUOTES:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_LSFT(SS_TAP(X_QUOTE)) SS_DELAY(10) SS_TAP(X_LEFT));
+            }
+            break;
+        case SQUOTES:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_QUOTE) SS_DELAY(10) SS_TAP(X_LEFT));
+            }
+            break;
+        case BACKTICKS:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_GRAVE) SS_DELAY(10) SS_TAP(X_LEFT));
+            }
+            break;
+        case ADDED:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_KP_PLUS) SS_DELAY(10) SS_TAP(X_SPACE));
+            }
+            break;
+        case ASSIGNMENT:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_EQUAL) SS_DELAY(10) SS_TAP(X_SPACE));
+            }
+            break;
+        case SUBTRACTED:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_TAP(X_MINUS) SS_DELAY(10) SS_TAP(X_SPACE));
+            }
+            break;
+        case MULTIPIED:
+            if (record->event.pressed) {
+                SEND_STRING(SS_TAP(X_SPACE) SS_DELAY(10) SS_LSFT(SS_TAP(X_KP_ASTERISK)) SS_DELAY(10) SS_TAP(X_SPACE));
+            }
+            break;
+        case SEL_LINE:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LGUI(SS_LSFT(SS_TAP(X_RIGHT))));
+            }
+            break;
+        case SEL_WORD:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LALT(SS_TAP(X_LEFT)) SS_DELAY(10) SS_LALT(SS_LSFT(SS_TAP(X_RIGHT))));
+            }
+            break;
 
         // tap dance
         // list all tap dance keycodes with tap-hold configurations
         case TD(ALFRED_SPOTLIGHT):
         case TD(OPT_CMD_BSPC):
-        action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
-        if (!record->event.pressed && action->state.count && !action->state.finished) {
-            tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
-            tap_code16(tap_hold->tap);
-        }
-        break;
+            action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
+            if (!record->event.pressed && action->state.count && !action->state.finished) {
+                tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+                tap_code16(tap_hold->tap);
+            }
+            break;
 
 
         case LT(3, OPT_BSPC):
-        if (!record->event.pressed && record->tap.count && !record->tap.interrupted) {
-            tap_code16(LALT(KC_BSPC));
-            layer_off(3);
-            return false;
-        }
-        return true;
-        break;
+            if (!record->event.pressed && record->tap.count && !record->tap.interrupted) {
+                tap_code16(LALT(KC_BSPC));
+                layer_off(3);
+                return false;
+            }
+            break;
 
         case LT(4, CMD_BSPC):
-        if (!record->event.pressed && record->tap.count && !record->tap.interrupted) {
-            tap_code16(LGUI(KC_BSPC));
-            layer_off(4);
-            return false;
-        }
-        return true;
-        break;
+            if (!record->event.pressed && record->tap.count && !record->tap.interrupted) {
+                tap_code16(LGUI(KC_BSPC));
+                layer_off(4);
+                return false;
+            }
+            break;
+
+        case RCTL_SCLN:
+            if (record->tap.count && record->event.pressed) {
+                uint8_t mods = get_mods();
+                if (mods == 0) {
+                    // send colon on tap with no mods
+                tap_code16(KC_COLON);
+                return false;
+                }
+                else if (mods == MOD_BIT_LSHIFT || mods == MOD_BIT_RSHIFT) {
+                    unregister_mods(mods);
+                    tap_code(KC_SEMICOLON);
+                    register_mods(mods);
+                    return false;
+                }
+            }
+            break;
     }
     return true;
 };
