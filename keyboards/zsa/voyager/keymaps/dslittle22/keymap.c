@@ -152,7 +152,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRANSPARENT, SEL_LINE,       SUBTRACTED,     ASSIGNMENT,     KC_TRANSPARENT, KC_TRANSPARENT,                                     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
       KC_TRANSPARENT, KC_TRANSPARENT, MULTIPIED,      ADDED,          KC_TRANSPARENT, KC_TRANSPARENT,                                     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
                                                                                       KC_TRANSPARENT, KC_TRANSPARENT,     KC_TRANSPARENT, KC_TRANSPARENT
-    )
+    ),
+    // regular qwerty layer but every key has MOD_MEH(KC)
+    [7] = LAYOUT(
+        KC_TRANSPARENT, MEH(KC_Q),      MEH(KC_W),      MEH(KC_E),      MEH(KC_R),      MEH(KC_T),                                           MEH(KC_Y),      MEH(KC_U),    MEH(KC_I),     MEH(KC_O),     MEH(KC_P),     MEH(KC_BSLS),
+        KC_TRANSPARENT, MEH(KC_A),      MEH(KC_S),      MEH(KC_D),      MEH(KC_F),      MEH(KC_G),                                           MEH(KC_H),      MEH(KC_J),    MEH(KC_K),     MEH(KC_L),     MEH(KC_SCLN),  MEH(KC_QUOTE),
+        KC_TRANSPARENT, MEH(KC_Z),      MEH(KC_X),      MEH(KC_C),      MEH(KC_V),      MEH(KC_B),                                           MEH(KC_N),      MEH(KC_M),    MEH(KC_COMMA), MEH(KC_DOT),   MEH(KC_SLASH), KC_TRANSPARENT,
+        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                      KC_TRANSPARENT, MEH(KC_LEFT), MEH(KC_DOWN),  MEH(KC_UP),    MEH(KC_RIGHT), KC_TRANSPARENT,
+                                                                                        KC_TRANSPARENT, KC_TRANSPARENT,      KC_TRANSPARENT, KC_TRANSPARENT
+      ),
   };
 
 
@@ -211,6 +219,9 @@ void cwl_reset(tap_dance_state_t *state, void *user_data) {
     cwl_tap_state.state = TD_NONE;
 }
 
+// run after tap dance finishes, which means either:
+// 1) the key was pressed and held, and the tapping term expired, or
+// 2) the tap dance key was pressed and then interrupted
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
     dprint("tap_dance_tap_hold_finished\n");
@@ -219,8 +230,12 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     dprintf("state->interrupted: %d\n", state->interrupted);
     dprintf("\n");
 
+    // so if the key was pressed and held, and the tapping term expired,
+    // then register a hold
     if (state->pressed) {
         if (state->count == 1
+            // in my case I have permissive hold enabled,
+            // so we will send the hold if interrupted
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -228,12 +243,19 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
             register_code16(tap_hold->hold);
             tap_hold->held = tap_hold->hold;
         } else {
+            // otherwise the tap dance key was interrupted- send the tap
             register_code16(tap_hold->tap);
             tap_hold->held = tap_hold->tap;
         }
     }
 }
 
+// this when the tap dance is "fully" over. Usually it runs immediately after
+// tap_dance_tap_hold_finished, but if the key is held, then
+// tap_dance_tap_hold_finished runs after tapping term expires, and
+// this runs when the key is released.
+
+// its only job is to release whatever key was registered.
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -318,10 +340,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // list all tap dance keycodes with tap-hold configurations
         case TD(ALFRED_SPOTLIGHT):
         case TD(OPT_CMD_BSPC):
+            // this is intercepting on release of >=1 press, and the tap dance
+            // is not already finished (e.g. not interrupted, maybe?)
             action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
             if (!record->event.pressed && action->state.count && !action->state.finished) {
                 tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+                // send a tap on release
                 tap_code16(tap_hold->tap);
+                // don't return false, the tap dance cleanup functions won't do anything here
             }
             break;
 
