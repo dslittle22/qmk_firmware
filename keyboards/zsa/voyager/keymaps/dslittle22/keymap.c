@@ -5,7 +5,7 @@
 #include QMK_KEYBOARD_H
 #include "process_tap_dance.h"
 #include "process_combo.h"
-#include "process_key_override.h"
+// #include "process_key_override.h"
 
 
 #define LCTL_A MT(MOD_LCTL, KC_A)
@@ -29,6 +29,7 @@ enum custom_keycodes {
     MULTIPIED,
     SEL_LINE,
     SEL_WORD,
+    SEMI_COLON_SWAP,
 };
 
 
@@ -40,31 +41,32 @@ enum tap_dance_codes {
 };
 
 
-const key_override_t semi_to_colon_override = {
-    .trigger_mods          = 0, // no mods need to be held to activate
-    .trigger               = KC_SCLN,
-    .replacement           = KC_COLON,
-    .layers                = ~0,      // active on all layers
-    .negative_mod_mask     = MOD_MASK_CSAG, // Only trigger if no mods are active
-    .suppressed_mods       = 0, // no mods should be held down, so we don't need to suppress any
-    .options               = ko_options_default
-};
+// const key_override_t semi_to_colon_override = {
+//     .trigger_mods          = 0, // no mods need to be held to activate
+//     .trigger               = KC_SCLN,
+//     .replacement           = KC_COLON,
+//     .layers                = ~0,      // active on all layers
+//     .negative_mod_mask     = MOD_MASK_CSAG, // Only trigger if no mods are active
+//     .suppressed_mods       = 0, // no mods should be held down, so we don't need to suppress any
+//     .options               = ko_options_default
+// };
 
 
-const key_override_t colon_to_semi_override = {
-    .trigger_mods          = MOD_MASK_SHIFT, // left or right shift
-    .trigger               = KC_SCLN,
-    .replacement           = KC_SCLN,
-    .layers                = ~0,      // active on all layers
-    .negative_mod_mask     = MOD_MASK_CAG, // Only trigger if no mods are active
-    .suppressed_mods       = MOD_MASK_SHIFT, // no mods should be held down, so we don't need to suppress any
-    .options               = ko_options_default
-};
+// const key_override_t colon_to_semi_override = {
+//     .trigger_mods          = MOD_MASK_SHIFT, // left or right shift
+//     .trigger               = KC_SCLN,
+//     .replacement           = KC_A,
+//     .layers                = ~0,      // active on all layers
+//     .negative_mod_mask     = 0, // MOD_MASK_CAG, // Only trigger if no mods are active
+//     .suppressed_mods       = 0,// MOD_MASK_SHIFT, // no mods should be held down, so we don't need to suppress any
+//     .options               = ko_options_default
+// };
 
 
-const key_override_t *key_overrides[] = {
-	&semi_to_colon_override,
-};
+// const key_override_t *key_overrides[] = {
+	// &semi_to_colon_override,
+    // &colon_to_semi_override,
+// };
 
 const uint16_t PROGMEM alfred_combo_1[] = {MT(MOD_LSFT, KC_F), KC_C, COMBO_END};
 const uint16_t PROGMEM alfred_combo_2[] = {MT(MOD_RSFT, KC_J), KC_COMMA, COMBO_END};
@@ -112,7 +114,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                   LT(3, OPT_BSPC),    LT(4, CMD_BSPC),                LT(3,KC_GRAVE), LT(4,KC_ENTER)
     ),
     [1] = LAYOUT(
-      LT(7,KC_TAB),   KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                                      KC_J,           KC_L,           KC_U,           KC_Y,           KC_SCLN,        KC_TRANSPARENT,
+      LT(7,KC_TAB),   KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                                      KC_J,           KC_L,           KC_U,           KC_Y,           SEMI_COLON_SWAP,        KC_TRANSPARENT,
       KC_TRANSPARENT, MT(MOD_LCTL, KC_A),MT(MOD_LALT, KC_R),MT(MOD_LGUI, KC_S),MT(MOD_LSFT, KC_T),KC_G,                                          KC_M,           MT(MOD_LSFT, KC_N),MT(MOD_LGUI, KC_E),MT(MOD_LALT, KC_I),MT(MOD_LCTL, KC_O),KC_TRANSPARENT,
       KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_D,           KC_V,                                                      KC_K,           KC_H,           KC_COMMA,       KC_DOT,         KC_SLASH,       KC_TRANSPARENT,
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                            KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
@@ -289,6 +291,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     dprintf("\n");
 
     switch (keycode) {
+        case SEMI_COLON_SWAP:
+        if (record->event.pressed) {
+            uint8_t mods = get_mods();
+            if (mods == 0) {
+                // send colon on tap with no mods
+            register_code16(KC_COLON);
+            return false;
+            }
+            else if (mods == MOD_BIT_LSHIFT || mods == MOD_BIT_RSHIFT) {
+                unregister_mods(mods);
+                register_code(KC_SEMICOLON);
+                add_mods(mods);
+                return false;
+            } else {
+                // if any other mods are held, send semicolon on tap
+                register_code16(KC_SEMICOLON);
+                return false;
+            }
+        } else { // released
+            unregister_code16(KC_COLON);
+            unregister_code16(KC_SEMICOLON);
+        }
+        break;
         // macros
         case QUOTES:
             if (record->event.pressed) {
