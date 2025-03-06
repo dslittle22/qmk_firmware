@@ -119,14 +119,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                               KC_DLR,         KC_7,           KC_8,           KC_9,           KC_ASTR,        KC_SLASH,
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                               KC_TRANSPARENT, KC_4,           KC_5,           KC_6,           KC_EQUAL,       KC_PERC,
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                               KC_0,           KC_1,           KC_2,           KC_3,           KC_PLUS,        KC_TRANSPARENT,
-      TO(0),          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                               KC_TRANSPARENT, KC_BSPC,        KC_COMMA,       KC_DOT,         KC_MINUS,       QK_LAYER_LOCK,
+      KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                               KC_TRANSPARENT, KC_BSPC,        KC_COMMA,       KC_DOT,         KC_MINUS,       QK_LAYER_LOCK,
                                                                                       KC_TRANSPARENT, KC_TRANSPARENT,        TO(0), KC_TRANSPARENT
     ),
     [4] = LAYOUT(
       KC_TRANSPARENT, KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,                                          RGB_TOG,        TOGGLE_LAYER_COLOR, RGB_MODE_FORWARD, RGB_MODE_REVERSE,     RGB_VAD,  RGB_VAI,
-      KC_TRANSPARENT, KC_F6,          KC_F7,          KC_F8,          KC_F9,          KC_F10,                                         KC_TRANSPARENT, KC_TRANSPARENT,     KC_TRANSPARENT,   KC_TRANSPARENT, KC_TRANSPARENT, QK_BOOT,
+      KC_TRANSPARENT, KC_F6,          KC_F7,          KC_F8,          KC_F9,          KC_F10,                                         KC_TRANSPARENT, KC_TRANSPARENT,     KC_TRANSPARENT,   KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_F11,         KC_F12,         KC_F13,                                         KC_TRANSPARENT, KC_TRANSPARENT,     KC_TRANSPARENT,   KC_TRANSPARENT, KC_TRANSPARENT, DB_TOGG,
-      TO(0),          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 RM_HUEU,        RM_HUED,            KC_TRANSPARENT,  KC_TRANSPARENT, KC_TRANSPARENT,  QK_LAYER_LOCK,
+      QK_BOOT,          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 RM_HUEU,        RM_HUED,            KC_TRANSPARENT,  KC_TRANSPARENT, KC_TRANSPARENT,  QK_LAYER_LOCK,
                                                                                       KC_TRANSPARENT, TO(0),                   TO(0), KC_TRANSPARENT
     ),
     [5] = LAYOUT(
@@ -239,6 +239,7 @@ tap_dance_action_t tap_dance_actions[] = {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+
     switch (keycode) {
         // macros
     case QUOTES:
