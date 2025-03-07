@@ -17,6 +17,15 @@
 #define RALT_L MT(MOD_RALT, KC_L)
 #define RCTL_SCLN MT(MOD_RCTL, KC_SCLN)
 
+// add these for the colemak layout
+#define LALT_R MT(MOD_LALT, KC_R)
+#define LGUI_S MT(MOD_LGUI, KC_S)
+#define LSFT_T_ MT(MOD_LSFT, KC_T)
+#define RSFT_N MT(MOD_RSFT, KC_N)
+#define RGUI_E MT(MOD_RGUI, KC_E)
+#define RALT_I MT(MOD_RALT, KC_I)
+#define RCTL_O MT(MOD_RCTL, KC_O)
+
 enum custom_keycodes {
     CMD_BSPC,
     OPT_BSPC,
@@ -68,12 +77,18 @@ enum tap_dance_codes {
     // &colon_to_semi_override,
 // };
 
-const uint16_t PROGMEM alfred_combo_1[] = {MT(MOD_LSFT, KC_F), KC_C, COMBO_END};
-const uint16_t PROGMEM alfred_combo_2[] = {MT(MOD_RSFT, KC_J), KC_COMMA, COMBO_END};
+const uint16_t PROGMEM alfred_combo_1[] = {LSFT_F, KC_C, COMBO_END};
+const uint16_t PROGMEM alfred_combo_2[] = {RSFT_J, KC_COMMA, COMBO_END};
+
+const uint16_t PROGMEM colemak_alfred_combo_1[] = {LSFT_T_, KC_C, COMBO_END};
+const uint16_t PROGMEM colemak_alfred_combo_2[] = {RSFT_N, KC_COMMA, COMBO_END};
+
 
 combo_t key_combos[] = {
     COMBO(alfred_combo_1, LGUI(KC_SPACE)),
     COMBO(alfred_combo_2, LGUI(KC_SPACE)),
+    COMBO(colemak_alfred_combo_1, LGUI(KC_SPACE)),
+    COMBO(colemak_alfred_combo_2, LGUI(KC_SPACE)),
 };
 
 typedef enum {
@@ -114,10 +129,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                   LT(3, OPT_BSPC),    LT(4, CMD_BSPC),                LT(3,KC_GRAVE), LT(4,KC_ENTER)
     ),
     [1] = LAYOUT(
-      LT(7,KC_TAB),   KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                                      KC_J,           KC_L,           KC_U,           KC_Y,           SEMI_COLON_SWAP,        KC_TRANSPARENT,
-      KC_TRANSPARENT, MT(MOD_LCTL, KC_A),MT(MOD_LALT, KC_R),MT(MOD_LGUI, KC_S),MT(MOD_LSFT, KC_T),KC_G,                                          KC_M,           MT(MOD_LSFT, KC_N),MT(MOD_LGUI, KC_E),MT(MOD_LALT, KC_I),MT(MOD_LCTL, KC_O),KC_TRANSPARENT,
-      KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_D,           KC_V,                                                      KC_K,           KC_H,           KC_COMMA,       KC_DOT,         KC_SLASH,       KC_TRANSPARENT,
-      KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                            KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+      LT(7,KC_TAB),   KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                                      KC_J,           KC_L,          KC_U,            KC_Y,           SEMI_COLON_SWAP, KC_TRANSPARENT,
+      KC_TRANSPARENT, MT(MOD_LCTL, KC_A),MT(MOD_LALT, KC_R),MT(MOD_LGUI, KC_S),MT(MOD_LSFT, KC_T),KC_G,                                          KC_M,           RSFT_N,        RGUI_E,          RALT_I,         RCTL_O,          KC_TRANSPARENT,
+      KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_D,           KC_V,                                                      KC_K,           KC_H,          KC_COMMA,        KC_DOT,         KC_SLASH,        KC_TRANSPARENT,
+      KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                            KC_TRANSPARENT, KC_TRANSPARENT,KC_TRANSPARENT,  KC_TRANSPARENT, KC_TRANSPARENT,  KC_TRANSPARENT,
                                                                                       KC_TRANSPARENT, KC_TRANSPARENT,            KC_TRANSPARENT, KC_TRANSPARENT
     ),
     [2] = LAYOUT(
@@ -424,7 +439,15 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case RGUI_K:
         case RALT_L:
         case RCTL_SCLN:
-            return 130;
+
+        case LALT_R:
+        case LGUI_S:
+        case LSFT_T_:
+        case RSFT_N:
+        case RGUI_E:
+        case RALT_I:
+        case RCTL_O:
+            return 150;
             break;
 
         default:
@@ -435,9 +458,9 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 
 const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
     LAYOUT(
+        '*', 'L', 'L', 'L', 'L', 'L',           'R', 'R', 'R', 'R', 'R', '*',
         'L', 'L', 'L', 'L', 'L', 'L',           'R', 'R', 'R', 'R', 'R', 'R',
         'L', 'L', 'L', 'L', 'L', 'L',           'R', 'R', 'R', 'R', 'R', 'R',
         'L', 'L', 'L', 'L', 'L', 'L',           'R', 'R', 'R', 'R', 'R', 'R',
-        'L', 'L', 'L', 'L', 'L', 'L',           'R', 'R', 'R', 'R', 'R', 'R',
-                            'L', 'L',             'R', 'R'
+                            '*', '*',             '*', '*'
     );
