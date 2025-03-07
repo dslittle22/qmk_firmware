@@ -129,7 +129,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                   LT(3, OPT_BSPC),    LT(4, CMD_BSPC),                LT(3,KC_GRAVE), LT(4,KC_ENTER)
     ),
     [1] = LAYOUT(
-      LT(7,KC_TAB),   KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                                      KC_J,           KC_L,          KC_U,            KC_Y,           SEMI_COLON_SWAP, KC_TRANSPARENT,
+      KC_TRANSPARENT, KC_Q,           KC_W,           KC_F,           KC_P,           KC_B,                                                      KC_J,           KC_L,          KC_U,            KC_Y,           SEMI_COLON_SWAP, KC_TRANSPARENT,
       KC_TRANSPARENT, MT(MOD_LCTL, KC_A),MT(MOD_LALT, KC_R),MT(MOD_LGUI, KC_S),MT(MOD_LSFT, KC_T),KC_G,                                          KC_M,           RSFT_N,        RGUI_E,          RALT_I,         RCTL_O,          KC_TRANSPARENT,
       KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_D,           KC_V,                                                      KC_K,           KC_H,          KC_COMMA,        KC_DOT,         KC_SLASH,        KC_TRANSPARENT,
       KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                            KC_TRANSPARENT, KC_TRANSPARENT,KC_TRANSPARENT,  KC_TRANSPARENT, KC_TRANSPARENT,  KC_TRANSPARENT,
@@ -170,13 +170,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRANSPARENT, KC_TRANSPARENT, MULTIPIED,      ADDED,          KC_TRANSPARENT, KC_TRANSPARENT,                                     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
                                                                                       KC_TRANSPARENT, KC_TRANSPARENT,     KC_TRANSPARENT, KC_TRANSPARENT
     ),
-    // regular qwerty layer but every key has MOD_MEH(KC)
+    // regular qwerty layer
     [7] = LAYOUT(
-        KC_TRANSPARENT, MEH(KC_Q),      MEH(KC_W),      MEH(KC_E),      MEH(KC_R),      MEH(KC_T),                                           MEH(KC_Y),      MEH(KC_U),    MEH(KC_I),     MEH(KC_O),     MEH(KC_P),     MEH(KC_BSLS),
-        KC_TRANSPARENT, MEH(KC_A),      MEH(KC_S),      MEH(KC_D),      MEH(KC_F),      MEH(KC_G),                                           MEH(KC_H),      MEH(KC_J),    MEH(KC_K),     MEH(KC_L),     MEH(KC_SCLN),  MEH(KC_QUOTE),
-        KC_TRANSPARENT, MEH(KC_Z),      MEH(KC_X),      MEH(KC_C),      MEH(KC_V),      MEH(KC_B),                                           MEH(KC_N),      MEH(KC_M),    MEH(KC_COMMA), MEH(KC_DOT),   MEH(KC_SLASH), KC_TRANSPARENT,
-        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                      KC_TRANSPARENT, MEH(KC_LEFT), MEH(KC_DOWN),  MEH(KC_UP),    MEH(KC_RIGHT), KC_TRANSPARENT,
-                                                                                        KC_TRANSPARENT, KC_TRANSPARENT,      KC_TRANSPARENT, KC_TRANSPARENT
+        KC_TRANSPARENT, KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                              KC_Y,      KC_U,    KC_I,     KC_O,     KC_P,     KC_BSLS,
+        KC_TRANSPARENT, KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                              KC_H,      KC_J,    KC_K,     KC_L,     KC_SCLN,  KC_QUOTE,
+        KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                              KC_N,      KC_M,    KC_COMMA, KC_DOT,   KC_SLASH, KC_TRANSPARENT,
+        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+                                                                                                            KC_TRANSPARENT, KC_TRANSPARENT,     TO(0), KC_TRANSPARENT,
       ),
   };
 
@@ -329,6 +329,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             unregister_code16(KC_SEMICOLON);
         }
         break;
+
+        case MEH_T(KC_TAB):
+            if (!layer_state_is(1)) {
+                break;
+            }
+
+            if (record->event.pressed) {
+                layer_off(1);
+            } else {
+                layer_on(1);
+            }
+
+        break;
+
         // macros
         case QUOTES:
             if (record->event.pressed) {
