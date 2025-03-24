@@ -39,6 +39,8 @@ enum custom_keycodes {
     SEL_LINE,
     SEL_WORD,
     SEMI_COLON_SWAP,
+    ALT_6,
+    TILDE,
 };
 
 
@@ -83,18 +85,23 @@ const uint16_t PROGMEM alfred_combo_2[] = {RSFT_J, KC_COMMA, COMBO_END};
 const uint16_t PROGMEM colemak_alfred_combo_1[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM colemak_alfred_combo_2[] = {KC_DOT, KC_COMMA, COMBO_END};
 
+const uint16_t PROGMEM colemak_combo[] = {KC_UP, KC_RIGHT, COMBO_END};
+
+
 
 combo_t key_combos[] = {
     COMBO(alfred_combo_1, LGUI(KC_SPACE)),
     COMBO(alfred_combo_2, LGUI(KC_SPACE)),
     COMBO(colemak_alfred_combo_1, LGUI(KC_SPACE)),
     COMBO(colemak_alfred_combo_2, LGUI(KC_SPACE)),
+    COMBO(colemak_combo, TG(1)),
 };
 
 typedef enum {
     TD_NONE,
     TD_UNKNOWN,
     TD_SINGLE_TAP,
+    TD_SINGLE_TAP_INTERRUPTED,
     TD_SINGLE_HOLD,
     TD_DOUBLE_TAP,
     TD_DOUBLE_HOLD,
@@ -127,7 +134,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       MEH_T(KC_TAB),        KC_Q,     KC_W,    KC_E,   KC_R,      KC_T,                                                            KC_Y,           KC_U,    KC_I,      KC_O,    KC_P,       ALL_T(KC_BSLS),
       LT(6,KC_ESCAPE),      LCTL_A,   LALT_S,  LGUI_D, LSFT_F,    KC_G,                                                            KC_H,           RSFT_J,  RGUI_K,    RALT_L,  RCTL_SCLN,  KC_QUOTE,
       TD(CAPS_LOCK_WORD),   KC_Z,     KC_X,    KC_C,   KC_V,      KC_B,                                                            KC_N,           KC_M,    KC_COMMA,  KC_DOT,  KC_SLASH,   OSM(MOD_LSFT),
-      TD(ALFRED_SPOTLIGHT), KC_PGUP,  KC_PGDN, KC_TAB, KC_GRAVE,  LT(2,KC_BSPC),                                                   LT(2,KC_SPACE), KC_LEFT, KC_DOWN,   KC_UP,   KC_RIGHT,   TD(EXP_COLEMAK),
+      TD(ALFRED_SPOTLIGHT), KC_PGUP,  KC_PGDN, KC_TAB, KC_GRAVE,  LT(2,KC_BSPC),                                                   LT(2,KC_SPACE), KC_LEFT, KC_DOWN,   KC_UP,   KC_RIGHT,   ALT_6,
                                                                                       LT(3, OPT_BSPC),  LT(4, CMD_BSPC),       LT(3,KC_GRAVE), LT(4,KC_ENTER)
     ),
     [1] = LAYOUT(
@@ -138,16 +145,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                        _______, _______,        _______, _______
     ),
     [2] = LAYOUT(
-      KC_HASH,        KC_AT,          KC_AMPR,        KC_PIPE,        KC_UNDS,        KC_QUES,                                                     _______, KC_LCBR,        KC_RCBR,        KC_GRAVE,       _______, _______,
-      KC_CIRC,        KC_EXLM,        KC_GRAVE,       KC_QUOTE,       KC_DQUO,        KC_DLR,                                                      _______, KC_LPRN,        KC_RPRN,        KC_QUOTE,       OSL(6),         _______,
-      KC_HASH,        KC_LABK,        KC_MINUS,       KC_EQUAL,       KC_RABK,        KC_QUES,                                                     _______, KC_LBRC,        KC_RBRC,        KC_DQUO,        _______, _______,
-      KC_TILD,        KC_SLASH,       KC_ASTR,        KC_PLUS,        KC_PERC,        _______,                                              _______, _______, _______, _______, _______, _______,
-                                                                                      _______, _______,              _______, _______
+      KC_HASH,        KC_AT,          KC_AMPR,        KC_PIPE,        KC_UNDS,        KC_QUES,                                        _______, KC_LCBR, KC_RCBR, KC_GRAVE, _______, _______,
+      KC_CIRC,        KC_EXLM,        KC_GRAVE,       KC_QUOTE,       KC_DQUO,        KC_DLR,                                         _______, KC_LPRN, KC_RPRN, KC_QUOTE, OSL(6), _______,
+      KC_HASH,        KC_LABK,        KC_MINUS,       KC_EQUAL,       KC_RABK,        KC_QUES,                                        _______, KC_LBRC, KC_RBRC, KC_DQUO, _______, _______,
+      TILDE,         KC_SLASH,         KC_ASTR,       KC_PLUS,        KC_PERC,        _______,                                        _______, _______, _______, _______, _______, _______,
+                                                                                                          _______, _______,              _______, _______
     ),
     [3] = LAYOUT(
-      _______, _______, _______, _______, _______, _______,                               KC_DLR,         KC_7,           KC_8,           KC_9,           KC_ASTR,        KC_SLASH,
+      _______, _______, _______, _______, _______, _______,                               KC_DLR,  KC_7,           KC_8,           KC_9,           KC_ASTR,        KC_SLASH,
       _______, _______, _______, _______, _______, _______,                               _______, KC_4,           KC_5,           KC_6,           KC_EQUAL,       KC_PERC,
-      _______, _______, _______, _______, _______, _______,                               KC_0,           KC_1,           KC_2,           KC_3,           KC_PLUS,        _______,
+      _______, _______, _______, _______, _______, _______,                               KC_0,    KC_1,           KC_2,           KC_3,           KC_PLUS,        _______,
       _______, _______, _______, _______, _______, _______,                               _______, KC_BSPC,        KC_COMMA,       KC_DOT,         KC_MINUS,       QK_LAYER_LOCK,
                                                                                       _______, _______,        TO(0), _______
     ),
@@ -199,7 +206,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
  td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 1) {
-        if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        // if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        if (state->interrupted) return TD_SINGLE_TAP_INTERRUPTED;
+        else if (!state->pressed) return TD_SINGLE_TAP;
+
         // Key has not been interrupted, but the key is still held. Means you want to send a 'HOLD'.
         else return TD_SINGLE_HOLD;
     } else if (state->count == 2) {
@@ -216,7 +226,8 @@ static td_tap_t cwl_tap_state = {
 void cwl_finished(tap_dance_state_t *state, void *user_data) {
     cwl_tap_state.state = cur_dance(state);
     switch (cwl_tap_state.state) {
-        case TD_SINGLE_TAP: register_code(KC_LSFT); break;
+        case TD_SINGLE_TAP:
+        case TD_SINGLE_TAP_INTERRUPTED: register_code(KC_LSFT); break;
         case TD_SINGLE_HOLD: register_code(KC_LSFT); break;
 
         case TD_DOUBLE_TAP:
@@ -227,6 +238,7 @@ void cwl_finished(tap_dance_state_t *state, void *user_data) {
 
 void cwl_reset(tap_dance_state_t *state, void *user_data) {
     switch (cwl_tap_state.state) {
+        case TD_SINGLE_TAP_INTERRUPTED: unregister_code(KC_LSFT); break;
         case TD_SINGLE_TAP: caps_word_toggle(); unregister_code(KC_LSFT); break;
         case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
         // this unregistering is making caps lock not work,
@@ -296,8 +308,8 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
 tap_dance_action_t tap_dance_actions[] = {
     [OPT_CMD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(LALT(KC_BSPC), LGUI(KC_BSPC)),
     [ALFRED_SPOTLIGHT] = ACTION_TAP_DANCE_TAP_HOLD(LGUI(KC_SPACE), LALT(KC_SPACE)),
-    [EXP_COLEMAK] = ACTION_TAP_DANCE_LAYER_TOGGLE(LALT(KC_6), 1),
-    [CAPS_LOCK_WORD] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, cwl_finished, cwl_reset)
+    [CAPS_LOCK_WORD] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, cwl_finished, cwl_reset),
+    // [EXP_COLEMAK] = ACTION_TAP_DANCE_LAYER_TOGGLE(LALT(KC_6), 1),
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -308,6 +320,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     dprintf("\n");
 
     switch (keycode) {
+        case TILDE:
+            if (record->event.pressed) {
+                tap_code16(LSFT(KC_GRAVE));
+                return false;
+            }
+            break;
+        case ALT_6:
+            if (record->event.pressed) {
+                tap_code16(LALT(KC_6));
+                return false;
+            }
+            break;
         case SEMI_COLON_SWAP:
         if (record->event.pressed) {
             uint8_t mods = get_mods();
