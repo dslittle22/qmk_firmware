@@ -80,8 +80,8 @@ enum tap_dance_codes {
 const uint16_t PROGMEM alfred_combo_1[] = {LSFT_F, KC_C, COMBO_END};
 const uint16_t PROGMEM alfred_combo_2[] = {RSFT_J, KC_COMMA, COMBO_END};
 
-const uint16_t PROGMEM colemak_alfred_combo_1[] = {LSFT_T_, KC_C, COMBO_END};
-const uint16_t PROGMEM colemak_alfred_combo_2[] = {RSFT_N, KC_COMMA, COMBO_END};
+const uint16_t PROGMEM colemak_alfred_combo_1[] = {KC_X, KC_C, COMBO_END};
+const uint16_t PROGMEM colemak_alfred_combo_2[] = {KC_DOT, KC_COMMA, COMBO_END};
 
 
 combo_t key_combos[] = {
@@ -313,22 +313,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             uint8_t mods = get_mods();
             if (mods == 0) {
                 // send colon on tap with no mods
-            register_code16(KC_COLON);
+            tap_code16(KC_COLON);
             return false;
             }
             else if (mods == MOD_BIT_LSHIFT || mods == MOD_BIT_RSHIFT) {
                 unregister_mods(mods);
-                register_code(KC_SEMICOLON);
-                add_mods(mods);
-                return false;
-            } else {
-                // if any other mods are held, send semicolon on tap
-                register_code16(KC_SEMICOLON);
+                tap_code(KC_SEMICOLON);
+                register_mods(mods);
                 return false;
             }
-        } else { // released
-            unregister_code16(KC_COLON);
-            unregister_code16(KC_SEMICOLON);
         }
         break;
 
