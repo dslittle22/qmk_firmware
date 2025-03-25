@@ -41,6 +41,7 @@ enum custom_keycodes {
     SEMI_COLON_SWAP,
     ALT_6,
     TILDE,
+    ATAT
 };
 
 
@@ -134,7 +135,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       MEH_T(KC_TAB),        KC_Q,     KC_W,    KC_E,   KC_R,      KC_T,                                                            KC_Y,           KC_U,    KC_I,      KC_O,    KC_P,       ALL_T(KC_BSLS),
       LT(6,KC_ESCAPE),      LCTL_A,   LALT_S,  LGUI_D, LSFT_F,    KC_G,                                                            KC_H,           RSFT_J,  RGUI_K,    RALT_L,  RCTL_SCLN,  KC_QUOTE,
       TD(CAPS_LOCK_WORD),   KC_Z,     KC_X,    KC_C,   KC_V,      KC_B,                                                            KC_N,           KC_M,    KC_COMMA,  KC_DOT,  KC_SLASH,   OSM(MOD_LSFT),
-      TD(ALFRED_SPOTLIGHT), KC_PGUP,  KC_PGDN, KC_TAB, KC_GRAVE,  LT(2,KC_BSPC),                                                   LT(2,KC_SPACE), KC_LEFT, KC_DOWN,   KC_UP,   KC_RIGHT,   ALT_6,
+      TD(ALFRED_SPOTLIGHT), KC_PGUP,  KC_PGDN, KC_TAB, KC_GRAVE,  LT(2,KC_BSPC),                                                   LT(2,KC_SPACE), KC_LEFT, KC_DOWN,   KC_UP,   KC_RIGHT,   ATAT,
                                                                                       LT(3, OPT_BSPC),  LT(4, CMD_BSPC),       LT(3,KC_GRAVE), LT(4,KC_ENTER)
     ),
     [1] = LAYOUT(
@@ -320,6 +321,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     dprintf("\n");
 
     switch (keycode) {
+        case ATAT:
+            if (record->event.pressed) {
+                tap_code16(KC_AT);
+                tap_code16(KC_AT);
+                return false;
+            }
+            break;
         case TILDE:
             if (record->event.pressed) {
                 tap_code16(LSFT(KC_GRAVE));
