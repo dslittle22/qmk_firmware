@@ -89,7 +89,6 @@ const uint16_t PROGMEM colemak_alfred_combo_2[] = {KC_DOT, KC_COMMA, COMBO_END};
 const uint16_t PROGMEM colemak_combo[] = {KC_UP, KC_RIGHT, COMBO_END};
 
 
-
 combo_t key_combos[] = {
     COMBO(alfred_combo_1, LGUI(KC_SPACE)),
     COMBO(alfred_combo_2, LGUI(KC_SPACE)),
@@ -472,6 +471,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 };
 
+void keyboard_post_init_user(void) {
+    layer_on(1);
+}
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
